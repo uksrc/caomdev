@@ -1,0 +1,3 @@
+[submodule "cadc-docker-base"]
+	path = cadc-docker-base
+	url = git@github.com:uksrc/cadc-docker-base.git
