@@ -1,0 +1,49 @@
+services:
+  reg:
+    image: stephenlloyd/uksrc:reg
+    container_name: reg
+    user: "tomcat:tomcat"
+    ports:
+      - "8881:8080"
+    volumes:
+      - ./config/reg:/config:ro
+    networks:
+      - mynetwork
+
+  baldur:
+    image: stephenlloyd/uksrc:baldur
+    container_name: baldur
+    user: "tomcat:tomcat"
+    ports:
+      - "8882:8080"
+    volumes:
+      - ./config/baldur:/config:ro
+    networks:
+      - mynetwork
+
+  pg15test:
+    image: stephenlloyd/uksrc:cadc-postgresql-dev
+    container_name: pg15test
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./config/postgres:/config:ro
+    restart: always
+    networks:
+      - mynetwork
+
+  torkeep:
+    image: images.opencadc.org/caom2/torkeep:0.1.4
+    container_name: torkeep
+    ports:
+      - "8883:8080"
+    volumes:
+      - ./config/torkeep:/config
+      - ./config/cadc-registry.properties:/config/cadc-registry.properties:ro
+      - ./logs:/logs:ro
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+    driver: bridge
