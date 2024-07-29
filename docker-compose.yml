@@ -38,6 +38,7 @@ services:
   torkeep:
     image: images.opencadc.org/caom2/torkeep:0.1.4
     container_name: torkeep
+    user: "tomcat:tomcat"
     ports:
       - "8883:8080"
     volumes:
