@@ -1,6 +1,6 @@
 services:
   reg:
-    image: images.opencadc.org/core/reg:1.1.0
+    image: images.opencadc.org/core/reg:1.1.1
     container_name: reg
     user: "tomcat:tomcat"
     ports:
@@ -8,11 +8,12 @@ services:
     volumes:
       - ./config/reg:/config
       - ./config/cacerts:/config/cacerts
+      - ./config/cadc-registry.properties:/config/cadc-registry.properties:ro
     networks:
       - mynetwork
 
   baldur:
-    image: stephenlloyd/uksrc:baldur
+    image: images.opencadc.org/storage-inventory/baldur:0.3.7
     container_name: baldur
     user: "tomcat:tomcat"
     ports:
@@ -20,20 +21,21 @@ services:
     volumes:
       - ./config/baldur:/config
       - ./config/cacerts:/config/cacerts
+      - ./config/cadc-registry.properties:/config/cadc-registry.properties:ro
     networks:
       - mynetwork
 
-  pg15test:
-    image: stephenlloyd/uksrc:cadc-postgresql-dev
-    container_name: pg15test
-    ports:
-      - "5432:5432"
-    volumes:
-      - ./config/postgres:/config
-      - ./config/cacerts:/config/cacerts
-    restart: always
-    networks:
-      - mynetwork
+#  pg15test:
+#    image: stephenlloyd/uksrc:cadc-postgresql-dev
+#    container_name: pg15test
+#    ports:
+#      - "5432:5432"
+#    volumes:
+#      - ./config/postgres:/config
+#      - ./config/cacerts:/config/cacerts
+#    restart: always
+#    networks:
+#      - mynetwork
 
   torkeep:
     image: images.opencadc.org/caom2/torkeep:0.1.4
@@ -46,6 +48,7 @@ services:
       - ./config/cacerts:/config/cacerts
       - ./config/cadc-registry.properties:/config/cadc-registry.properties:ro
       - ./logs:/logs:ro
+    restart: always
     networks:
       - mynetwork
 

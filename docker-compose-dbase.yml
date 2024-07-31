@@ -1,0 +1,16 @@
+services:
+  pg15test:
+    image: stephenlloyd/uksrc:cadc-postgresql-dev
+    container_name: pg15test
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./config/postgres:/config
+      - ./config/cacerts:/config/cacerts
+    restart: always
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+    driver: bridge
