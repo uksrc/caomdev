@@ -1,1 +1,4 @@
 /.idea/
+/config/baldur/cadc-registry.properties
+/config/reg/cadc-registry.properties
+/config/torkeep/cadc-registry.properties
