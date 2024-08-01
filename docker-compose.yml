@@ -1,3 +1,7 @@
+# Make sure pg15test database is already running
+# The database is required for the torkeep service but is a separate task for a couple of reasons:
+# 1. Able to restart services and allow the database to persist
+# 2. The way CADC's postgres-dev works means that docker-compose "dependsOn" won't work
 services:
   reg:
     image: images.opencadc.org/core/reg:1.1.1
@@ -24,18 +28,6 @@ services:
       - ./config/cadc-registry.properties:/config/cadc-registry.properties:ro
     networks:
       - mynetwork
-
-#  pg15test:
-#    image: stephenlloyd/uksrc:cadc-postgresql-dev
-#    container_name: pg15test
-#    ports:
-#      - "5432:5432"
-#    volumes:
-#      - ./config/postgres:/config
-#      - ./config/cacerts:/config/cacerts
-#    restart: always
-#    networks:
-#      - mynetwork
 
   torkeep:
     image: images.opencadc.org/caom2/torkeep:0.1.4
