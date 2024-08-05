@@ -24,7 +24,7 @@ Several components that have been developed by OpenCADC are used in this deploym
 ## Using
 
 1. Install self-signed certificates
-	- RootCA.crt in browser and command line TODO - explanation or link
+	- RootCA.crt in browser and command line
 	- Domain for this is https://src-data-repo.co.uk
 	- Can be changed but you'll have to create your own, repeat 1 above, update the nginx.conf and replace the rootCA.crt in each service's config folder (so they can trust each other).
 <br>
@@ -119,3 +119,36 @@ curl -SsL --header "authorization: bearer $SKA_TOKEN"  https://src-data-repo.co.
 
 #### Franz Kirsten's Repo (for reference)
 https://gitlab.com/users/fkirsten/projects
+
+
+### Certs and command line custom domain
+As we're currently using a custom domain name, we need to allow the browser to authenticate our own tickets.
+https://docs.vmware.com/en/VMware-Adapter-for-SAP-Landscape-Management/2.1.0/Installation-and-Administration-Guide-for-VLA-Administrators/GUID-0CED691F-79D3-43A4-B90D-CD97650C13A0.html
+
+Also, we can do this for command line calls such as curl requests
+```
+cp rootCa and tls.crt to /usr/local/share/ca-certificates/
+
+sudo update-ca-certificates
+```
+
+The domain will need to be added to the "hosts" file
+
+Linux:
+```
+>nano /etc/hosts
+```
+There will be an entry(entries) such as:
+```
+127.0.0.1 localhost
+```
+Add another:
+```
+127.0.0.1 src-data-repo.co.uk
+```
+Should hopefully work immediately.
+
+I’ve never done it on Mac so I just googled this - How to Find and Edit the Hosts File on My Mac | Nexcess
+
+On Windows it’s C:\Windows\System32\drivers\etc\hosts
+
