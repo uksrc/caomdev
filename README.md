@@ -115,3 +115,7 @@ https://confluence.skatelescope.org/display/SRCSC/RED-10+Using+oidc-agent+to+aut
 ```
 curl -SsL --header "authorization: bearer $SKA_TOKEN"  https://src-data-repo.co.uk/torkeep/observations
 ```
+
+
+#### Franz Kirsten's Repo (for reference)
+https://gitlab.com/users/fkirsten/projects
