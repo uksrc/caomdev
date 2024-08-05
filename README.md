@@ -45,3 +45,73 @@ Several components that have been developed by OpenCADC are used in this deploym
     <em>docker-compose up -d</em>
 <br>
 <br>
+
+### Testing
+
+Each component has a couple of standard 'status' APIs (returns XML):
+
+Get the status of the component  
+https://<em>\<domain\></em>/<em>\<component\></em>/availability
+
+Get a list of available APIs <br>
+	https://<em>\<domain\></em>/<em>\<component\></em>/capabilities
+
+Can be called like this from the command line (or from the browser)  
+```
+curl -k https://src-data-repo.co.uk/torkeep/availability
+```
+These should work for <em>reg</em>, <em>baldur</em> or <em>torkeep</em>.
+
+
+List the **registry contents**  
+```
+curl -k https://src-data-repo.co.uk/reg/resource-caps
+```
+Shoud return a list of services that were defined in <em>./config/reg/reg-resource-caps.properties</em>
+```
+#First, global services:
+ivo://skao.int/reg = https://src-data-repo.co.uk/reg/capabilities  
+ivo://skao.int/gms = https://ska-gms.stfc.ac.uk/gms/capabilities  
+ivo://skao.int/baldur = https://src-data-repo.co.uk/baldur/capabilities  
+
+...
+```
+
+**Group permissions** as defined in <em>./config/baldur/baldur.properties</em>  
+Extra info here - https://github.com/opencadc/storage-inventory/tree/main/baldur  
+
+curl https://<em>\<domain\></em>/baldur/perms?op=<em>grantType</em>\&ID=<em>identifier</em>
+```
+curl https://src-data-repo.co.uk/baldur/perms?op=read\&ID=jbo:EMERLIN/
+```
+
+Should return (if found), details of the group
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<grant type="ReadGrant">
+  <assetID>jbo:EMERLIN/</assetID>
+  <expiryDate>2024-08-02T09:30:20.146</expiryDate>
+  <anonymousRead>true</anonymousRead>
+</grant>
+```
+
+ ⚠️ **Warning:** Be cautious of the pattern used to match, see <em>baldur.properties</em>' **EMERLIN.pattern** for the regular expression used to match the search term.
+
+
+  
+**Database submission & retrieval** (torkeep service)  
+https://src-data-repo.co.uk/torkeep/ in a browser for a detailed list of available APIs in a more readable fashion than calling <em>../torkeep/capabilities</em>
+
+A call to observations returns the available groups
+```
+> curl https://src-data-repo.co.uk/torkeep/observations
+test
+EMERLIN
+```
+
+
+### Bearer Token for API calls using group permissions
+https://confluence.skatelescope.org/display/SRCSC/RED-10+Using+oidc-agent+to+authenticate+to+OpenCADC+services
+```
+curl -SsL --header "authorization: bearer $SKA_TOKEN"  https://src-data-repo.co.uk/torkeep/observations
+```
