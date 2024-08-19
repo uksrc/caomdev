@@ -1,0 +1,35 @@
+<caom2:Observation xmlns:caom2="http://www.opencadc.org/caom2/xml/v2.4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="caom2:SimpleObservation" caom2:id="aa4851ba-9550-41fc-a920-759e2026d508">
+  <caom2:collection>EMERLIN</caom2:collection>
+  <caom2:observationID>TS8004_C_001_20190801_avg.ms</caom2:observationID>
+  <caom2:algorithm>
+    <caom2:name>exposure</caom2:name>
+  </caom2:algorithm>
+  <caom2:intent>science</caom2:intent>
+  <caom2:target>
+    <caom2:name>TBD</caom2:name>
+  </caom2:target>
+  <caom2:telescope>
+    <caom2:name>e</caom2:name>
+  </caom2:telescope>
+  <caom2:planes>
+    <caom2:plane caom2:id="fe3d66f9-31ab-4a61-b558-a5d98bf56970">
+      <caom2:productID>TS8004_C_001_20190801_avg.ms</caom2:productID>
+      <caom2:artifacts>
+        <caom2:artifact caom2:id="d8d1cd83-3283-483c-bbf4-281dc53fc388">
+          <caom2:uri>uri:foo/bar</caom2:uri>
+          <caom2:productType>science</caom2:productType>
+          <caom2:releaseType>meta</caom2:releaseType>
+          <caom2:contentType>application/measurement-set</caom2:contentType>
+          <caom2:contentLength>14935710969</caom2:contentLength>
+          <caom2:contentChecksum>md5:e56af5f3314f048648e19a82bf751f9a</caom2:contentChecksum>
+          <caom2:parts>
+            <caom2:part caom2:id="fcbdaf6d-99d1-4310-a5fb-165e194cf23b">
+              <caom2:name>name</caom2:name>
+              <caom2:chunks/>
+            </caom2:part>
+          </caom2:parts>
+        </caom2:artifact>
+      </caom2:artifacts>
+    </caom2:plane>
+  </caom2:planes>
+</caom2:Observation>

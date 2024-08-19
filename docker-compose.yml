@@ -5,7 +5,6 @@
 services:
   reg:
     image: images.opencadc.org/core/reg:1.1.1
-#    network_mode: "host"
     container_name: reg
     user: "tomcat:tomcat"
     ports:
@@ -15,13 +14,12 @@ services:
       - ./config/cacerts:/config/cacerts
       - ./config/cadc-registry.properties:/config/cadc-registry.properties:ro
     extra_hosts:
-      - "src-data-repo.co.uk:172.17.0.1"
+      - "src-data-repo.co.uk:${HOST_IP}"
     networks:
       - mynetwork
 
   baldur:
     image: images.opencadc.org/storage-inventory/baldur:0.3.7
-#    network_mode: "host"
     container_name: baldur
     user: "tomcat:tomcat"
     ports:
@@ -31,13 +29,12 @@ services:
       - ./config/cacerts:/config/cacerts
       - ./config/cadc-registry.properties:/config/cadc-registry.properties:ro
     extra_hosts:
-      - "src-data-repo.co.uk:172.17.0.1"
+      - "src-data-repo.co.uk:${HOST_IP}"
     networks:
       - mynetwork
 
   torkeep:
     image: images.opencadc.org/caom2/torkeep:0.1.4
-#    network_mode: "host"
     container_name: torkeep
     user: "tomcat:tomcat"
     ports:
@@ -48,15 +45,13 @@ services:
       - ./config/cadc-registry.properties:/config/cadc-registry.properties:ro
     restart: always
     extra_hosts:
-      - "src-data-repo.co.uk:172.17.0.1"
+      - "src-data-repo.co.uk:${HOST_IP}"
     networks:
       - mynetwork
 
   nginx:
     image: nginx:latest
     network_mode: "host"
- #   ports:
- #     - "80:80"
     container_name: nginx
     volumes:
       - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
