@@ -42,9 +42,13 @@ Several components that have been developed by OpenCADC are used in this deploym
 <br>
 <br>
 6. Start the main services <br>
-    <em>docker-compose up -d</em>
+    <em>./start-services.sh</em>
 <br>
 <br>
+
+7. Stopping the services  
+	<em>docker-compose down</em>  
+	<em>docker-compose -f docker-compose-dbase.yml down</em>
 
 ### Testing
 
@@ -82,17 +86,19 @@ Extra info here - https://github.com/opencadc/storage-inventory/tree/main/baldur
 
 curl https://<em>\<domain\></em>/baldur/perms?op=<em>grantType</em>\&ID=<em>identifier</em>
 ```
-curl https://src-data-repo.co.uk/baldur/perms?op=read\&ID=jbo:EMERLIN/
+curl https://src-data-repo.co.uk/baldur/perms?op=read\&ID=caom:EMERLIN/
 ```
 
 Should return (if found), details of the group
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <grant type="ReadGrant">
-  <assetID>jbo:EMERLIN/</assetID>
+  <assetID>caom:EMERLIN/</assetID>
   <expiryDate>2024-08-02T09:30:20.146</expiryDate>
   <anonymousRead>true</anonymousRead>
 </grant>
+
+# assetID pattern needs to conform to caom:{collection}/{observationID}
 ```
 
  ⚠️ **Warning:** Be cautious of the pattern used to match, see <em>baldur.properties</em>' **EMERLIN.pattern** for the regular expression used to match the search term.
@@ -148,7 +154,29 @@ Add another:
 ```
 Should hopefully work immediately.
 
-I’ve never done it on Mac so I just googled this - How to Find and Edit the Hosts File on My Mac | Nexcess
+I’ve never done it on Mac so I just googled this https://www.nexcess.net/help/how-to-find-the-hosts-file-on-my-mac/  
 
-On Windows it’s C:\Windows\System32\drivers\etc\hosts
+On Windows it’s <em>C:\Windows\System32\drivers\etc\hosts</em>
+
+
+## Usage
+```
+# Don't forget to get a new token (1 hour expiration)
+export SKA_TOKEN=$(oidc-token example-client)
+
+# Make sure observationID and collection are the same in the file as used in the curl request.
+
+# PUT a new entry
+curl -v --header "Content-Type: text/xml" --header "authorization: bearer $SKA_TOKEN" -T test_data.xml https://src-data-repo.co.uk/torkeep/observations/EMERLIN/TS8004_C_001_20190801_avg.ms
+
+# Read the observations under a named collection, read operations shouldn't need the SKA_TOKEN whilst set to anon = true in the baldur.properties. 
+curl -X GET --header 'Accept: text/tab-separated-values' 'https://src-data-repo.co.uk/torkeep/observations/EMERLIN'
+
+# Delete a named entry
+curl -X DELETE --header "authorization: bearer $SKA_TOKEN" https://src-data-repo.co.uk/torkeep/observations/EMERLIN/TS8004_C_001_20190801_avg.ms
+```
+
+### Notes
+<em>start-services.sh</em> has to be used to populate HOST_IP required by the docker-compose file, rather than calling <em>docker-compose up</em> directly. This value is used by the containers to allow access to the custom domain and will allow access via the reverse proxy. It's basically the IP address of the host machine from the perspective of the docker containers.
+
 

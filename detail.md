@@ -25,7 +25,6 @@ ll of these are running in what was the mini-srcnet demonstrator (operated by Co
 And of course: a way to authenticate, which would be  "get token from SRCNet IAM" and use it to make the calls to torkeep. I'll have to check with Adrian Damian that the minimal token support has been added to the caom2 repository client.
 
 The current reg service is here:
-https://spsrc27.iaa.csic.es/reg/capabilities
 and the simple config-map style output is:
 https://spsrc27.iaa.csic.es/reg/resource-caps
 You can think of that output as a canned query on a real registry, but is is actually just a network-accessible config file mapping resourceID to the capabilities endpoint; OpenCADC services mostly know (config or content) the resourceID and need to get the details before calling the service, and this supports that sequence while centrally managing the actual locations (URLs)
@@ -82,6 +81,17 @@ CAOM permissions used by torkeep
 org.opencadc.baldur.entry = CAOM-TEST
 CAOM-TEST.pattern = ^caom:TEST/.*
 CAOM-TEST.readWriteGroup = {group uri}*
+
+# Example
+org.opencadc.baldur.entry = EMERLIN
+EMERLIN.pattern = ^caom:EMERLIN/.*
+EMERLIN.anon = true
+EMERLIN.readOnlyGroup = ivo://skao.int/gms?prototyping-groups/mini-src/platform-users
+EMERLIN.readWriteGroup = ivo://skao.int/gms?prototyping-groups/mini-src/platform-users
+
+# NOTE ~.pattern needs to conform to caom:{collection}/{observationID}
+# readOnlyGroup superfluous when anon = true
+#  ivo://skao.int/gms?prototyping-groups/mini-src/platform-users can be requested via the SKAO IAM system (custom groups can be created if needed, ask on the proj-src-iam slack channel)
 ```
 
 would allow the specified group to write (curate metadata) in the TEST collection. You can put rules like this for multiple collections.
