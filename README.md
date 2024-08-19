@@ -29,26 +29,33 @@ Several components that have been developed by OpenCADC are used in this deploym
 	- Can be changed but you'll have to create your own, repeat 1 above, update the nginx.conf and replace the rootCA.crt in each service's config folder (so they can trust each other).
 <br>
 <br>
-2. Install Docker (& docker-compose)
+2. Install Docker (& docker-compose)  
+	https://docs.docker.com/get-docker/  
+	https://docs.docker.com/compose/install/
 <br>
-<br>
-3. Clone repository
+
+3. Clone repository  
+	https://github.com/uksrc/caomdev
 <br>
 <br>
 4. Start the postgres db (done separately)<br>
-	<em>docker-compose -f docker-compose-dbase.yml up -d</em>
-<br>
+	```
+	docker-compose -f docker-compose-dbase.yml up -d
+	```
+
 5. Wait for a minute or so to allow the postgres db to start 
 <br>
 <br>
 6. Start the main services <br>
-    <em>./start-services.sh</em>
-<br>
-<br>
+	```
+    ./start-services.sh
+	```
 
 7. Stopping the services  
-	<em>docker-compose down</em>  
-	<em>docker-compose -f docker-compose-dbase.yml down</em>
+	```
+	docker-compose down
+	docker-compose -f docker-compose-dbase.yml down
+	```
 
 ### Testing
 
