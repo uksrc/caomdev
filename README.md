@@ -127,8 +127,6 @@ EMERLIN
 https://confluence.skatelescope.org/display/SRCSC/RED-10+Using+oidc-agent+to+authenticate+to+OpenCADC+services
 ```
 curl -SsL --header "authorization: bearer $SKA_TOKEN"  https://src-data-repo.co.uk/torkeep/observations
-```
-
 
 #### Franz Kirsten's Repo (for reference)
 https://gitlab.com/users/fkirsten/projects
@@ -139,6 +137,10 @@ As we're currently using a custom domain name, we need to allow the browser to a
 https://docs.vmware.com/en/VMware-Adapter-for-SAP-Landscape-Management/2.1.0/Installation-and-Administration-Guide-for-VLA-Administrators/GUID-0CED691F-79D3-43A4-B90D-CD97650C13A0.html
 
 Also, we can do this for command line calls such as curl requests
+
+
+User needs to be a member of a permissions group via https://ska-iam.stfc.ac.uk/login.
+Currently set to ivo://skao.int/gms?prototyping-groups/mini-src/platform-users but can be changed in the baldur.properties file.
 ```
 cp rootCa and tls.crt to /usr/local/share/ca-certificates/
 
