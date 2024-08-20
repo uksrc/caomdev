@@ -22,7 +22,6 @@ Several components that have been developed by OpenCADC are used in this deploym
 
 
 ## Using
-
 1. Install self-signed certificates
 	- RootCA.crt in browser and command line
 	- Domain for this is https://src-data-repo.co.uk
@@ -38,7 +37,8 @@ Several components that have been developed by OpenCADC are used in this deploym
 	https://github.com/uksrc/caomdev
 <br>
 <br>
-4. Start the postgres db (done separately)<br>
+4. Start the postgres db (done separately)<br>  
+
 	```
 	docker-compose -f docker-compose-dbase.yml up -d
 	```
@@ -46,7 +46,8 @@ Several components that have been developed by OpenCADC are used in this deploym
 5. Wait for a minute or so to allow the postgres db to start 
 <br>
 <br>
-6. Start the main services <br>
+6. Start the main services <br>  
+
 	```
     ./start-services.sh
 	```
@@ -170,18 +171,18 @@ On Windows it’s <em>C:\Windows\System32\drivers\etc\hosts</em>
 
 ## Usage
 ```
-# Don't forget to get a new token (1 hour expiration)
+### Don't forget to get a new token (1 hour expiration)
 export SKA_TOKEN=$(oidc-token example-client)
 
-# Make sure observationID and collection are the same in the file as used in the curl request.
+### Make sure observationID and collection are the same in the file as used in the curl request.
 
-# PUT a new entry
+### PUT a new entry
 curl -v --header "Content-Type: text/xml" --header "authorization: bearer $SKA_TOKEN" -T test_data.xml https://src-data-repo.co.uk/torkeep/observations/EMERLIN/TS8004_C_001_20190801_avg.ms
 
-# Read the observations under a named collection, read operations shouldn't need the SKA_TOKEN whilst set to anon = true in the baldur.properties. 
+### Read the observations under a named collection, read operations shouldn't need the SKA_TOKEN whilst set to anon = true in the baldur.properties. 
 curl -X GET --header 'Accept: text/tab-separated-values' 'https://src-data-repo.co.uk/torkeep/observations/EMERLIN'
 
-# Delete a named entry
+### Delete a named entry
 curl -X DELETE --header "authorization: bearer $SKA_TOKEN" https://src-data-repo.co.uk/torkeep/observations/EMERLIN/TS8004_C_001_20190801_avg.ms
 ```
 
