@@ -13,8 +13,11 @@ services:
       - ./config/reg:/config
       - ./config/cacerts:/config/cacerts
       - ./config/cadc-registry.properties:/config/cadc-registry.properties:ro
-    extra_hosts:
-      - "src-data-repo.co.uk:${HOST_IP}"
+    links:
+      - "nginx:src-data-repo.co.uk"
+    environment:
+      VIRTUAL_HOST: src-data-repo.co.uk
+      VIRTUAL_PATH: /reg/
     networks:
       - mynetwork
 
@@ -28,8 +31,11 @@ services:
       - ./config/baldur:/config
       - ./config/cacerts:/config/cacerts
       - ./config/cadc-registry.properties:/config/cadc-registry.properties:ro
-    extra_hosts:
-      - "src-data-repo.co.uk:${HOST_IP}"
+    links:
+      - "nginx:src-data-repo.co.uk"
+    environment:
+      VIRTUAL_HOST: src-data-repo.co.uk
+      VIRTUAL_PATH: /baldur/
     networks:
       - mynetwork
 
@@ -43,22 +49,29 @@ services:
       - ./config/torkeep:/config
       - ./config/cacerts:/config/cacerts
       - ./config/cadc-registry.properties:/config/cadc-registry.properties:ro
+    environment:
+      VIRTUAL_HOST: src-data-repo.co.uk
+      VIRTUAL_PATH: /torkeep/
     restart: always
-    extra_hosts:
-      - "src-data-repo.co.uk:${HOST_IP}"
+    links:
+      - "nginx:src-data-repo.co.uk"
     networks:
       - mynetwork
 
   nginx:
-    image: nginx:latest
-    network_mode: "host"
+    image: nginxproxy/nginx-proxy
     container_name: nginx
     volumes:
-      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./ssl/server.crt:/etc/nginx/ssl/server.crt:ro
-      - ./ssl/server.key:/etc/nginx/ssl/server.key:ro
-#    networks:
-#      - mynetwork
+      - ./ssl/server.crt:/etc/nginx/certs/src-data-repo.co.uk.crt:ro
+      - ./ssl/server.key:/etc/nginx/certs/src-data-repo.co.uk.key:ro
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    environment:
+      VIRTUAL_HOST: src-data-repo.co.uk
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - mynetwork
 
 networks:
   mynetwork:
