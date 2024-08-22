@@ -49,7 +49,7 @@ Several components that have been developed by OpenCADC are used in this deploym
 6. Start the main services <br>  
 
 	```
-    ./start-services.sh
+    docker-compose up -d
 	```
 
 7. Stopping the services  
