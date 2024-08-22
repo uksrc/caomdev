@@ -65,8 +65,6 @@ services:
       - ./ssl/server.crt:/etc/nginx/certs/src-data-repo.co.uk.crt:ro
       - ./ssl/server.key:/etc/nginx/certs/src-data-repo.co.uk.key:ro
       - /var/run/docker.sock:/tmp/docker.sock:ro
-    environment:
-      VIRTUAL_HOST: src-data-repo.co.uk
     ports:
       - "80:80"
       - "443:443"
