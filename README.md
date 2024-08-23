@@ -1,5 +1,3 @@
- =======
-
 Fire up a local development CAOM db instance. This will only create a local instance of the database with the REST API that the https://github.com/uksrc/emerlin2caom can talk to. There is some [background detail](detail.md) of the services that need to be set up.
 
 ## Components
@@ -28,12 +26,12 @@ Several components that have been developed by OpenCADC are used in this deploym
 <br>
 <br>
 2. Install Docker (& docker-compose)  
-	https://docs.docker.com/get-docker/  
-	https://docs.docker.com/compose/install/
+	>	https://docs.docker.com/get-docker/  
+	>	https://docs.docker.com/compose/install/
 <br>
 
 3. Clone repository  
-	https://github.com/uksrc/caomdev
+	>https://github.com/uksrc/caomdev
 <br>
 4. Adjust settings
 	See [detail.md](detail.md) for information reagrding identity managment, permissions groups & bearer tokens for requests.
@@ -100,7 +98,6 @@ Extra info here - https://github.com/opencadc/storage-inventory/tree/main/baldur
 
 <?xml version="1.0" encoding="UTF-8"?>
 <grant type="ReadGrant">
-  <assetID>caom:EMERLIN/</assetID>
   <expiryDate>2024-08-02T09:30:20.146</expiryDate>
   <anonymousRead>true</anonymousRead>
 </grant>
@@ -115,13 +112,11 @@ Extra info here - https://github.com/opencadc/storage-inventory/tree/main/baldur
 #### Database submission & retrieval (torkeep service)  
 https://src-data-repo.co.uk/torkeep/ in a browser for a detailed list of available APIs in a more readable fashion than calling <em>../torkeep/capabilities</em>
 
-**Note** A bearer token is required for write and delete requests (shown as "SKA_TOKEN" below), see details.md for user account & bear token information. 
+**Note** A bearer token is required for write and delete requests (shown as "SKA_TOKEN" below), see [details.md](detail.md) for user account & bear token information. 
 ```
 > curl https://src-data-repo.co.uk/torkeep/observations
-
 # Should return the list of groups (collections) defined in baldur.properties
 
-test
 EMERLIN
 
 # Inject some data
