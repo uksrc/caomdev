@@ -26,31 +26,31 @@ Several components that have been developed by OpenCADC are used in this deploym
 <br>
 <br>
 2. Install Docker (& docker-compose)  
-	>	https://docs.docker.com/get-docker/  
-	>	https://docs.docker.com/compose/install/
+>	https://docs.docker.com/get-docker/  
+>	https://docs.docker.com/compose/install/
 <br>
 
 3. Clone repository  
-	>https://github.com/uksrc/caomdev
+>	https://github.com/uksrc/caomdev
 <br>
 4. Adjust settings
 	See [detail.md](detail.md) for information reagrding identity managment, permissions groups & bearer tokens for requests.
 <br>
-4. Start the postgres db (done separately)
+5. Start the postgres db (done separately)
 
 ```
 docker-compose -f docker-compose-dbase.yml up -d
 ```
 
-5. Wait for a minute or so to allow the postgres db to start 
+6. Wait for a minute or so to allow the postgres db to start 
 <br>
-6. Start the main services
+7. Start the main services
 
 ```
 docker-compose up -d
 ```
 
-7. Stopping the services  
+8. Stopping the services  
 
 ```
 docker-compose down
