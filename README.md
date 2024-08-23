@@ -1,4 +1,3 @@
- caomdev
  =======
 
 Fire up a local development CAOM db instance. This will only create a local instance of the database with the REST API that the https://github.com/uksrc/emerlin2caom can talk to. There is some [background detail](detail.md) of the services that need to be set up.
@@ -21,11 +20,11 @@ Several components that have been developed by OpenCADC are used in this deploym
 - [Torkeep - API access to database](https://github.com/opencadc/caom2db/tree/main/torkeep)
 
 
-## Using
+## Deploying
 1. Install self-signed certificates
-	- RootCA.crt in browser and command line
+	- RootCA.crt in browser and command line. See [Ubuntu example](https://ubuntu.com/server/docs/install-a-root-ca-certificate-in-the-trust-store) and [Firefox example](https://docs.vmware.com/en/VMware-Adapter-for-SAP-Landscape-Management/2.1.0/Installation-and-Administration-Guide-for-VLA-Administrators/GUID-0CED691F-79D3-43A4-B90D-CD97650C13A0.html) for linux reference.
 	- Domain for this is https://src-data-repo.co.uk
-	- Can be changed but you'll have to create your own, repeat 1 above, update the nginx.conf and replace the rootCA.crt in each service's config folder (so they can trust each other).
+	- Can be changed but you'll have to create your own certificate & root authority, repeat 1 above, update the nginx.conf and replace the rootCA.crt in each service's config folder (so they can trust each other).
 <br>
 <br>
 2. Install Docker (& docker-compose)  
@@ -36,6 +35,8 @@ Several components that have been developed by OpenCADC are used in this deploym
 3. Clone repository  
 	https://github.com/uksrc/caomdev
 <br>
+4. Adjust settings
+	See [detail.md](detail.md) for information reagrding identity managment, permissions groups & bearer tokens for requests.
 <br>
 4. Start the postgres db (done separately)<br>  
 
@@ -58,47 +59,45 @@ Several components that have been developed by OpenCADC are used in this deploym
 	docker-compose -f docker-compose-dbase.yml down
 	```
 
-### Testing
+## Testing
 
 Each component has a couple of standard 'status' APIs (returns XML):
 
-Get the status of the component  
-https://<em>\<domain\></em>/<em>\<component\></em>/availability
+#### Get the status of the component(s)
+>https://<em>\<domain\></em>/<em>\<component\></em>/availability
 
-Get a list of available APIs <br>
-	https://<em>\<domain\></em>/<em>\<component\></em>/capabilities
+#### Get a list of available APIs 
+>https://<em>\<domain\></em>/<em>\<component\></em>/capabilities
 
-Can be called like this from the command line (or from the browser)  
+Can be called like this from the command line (or use the URL in a browser)  
 ```
 curl -k https://src-data-repo.co.uk/torkeep/availability
 ```
-These should work for <em>reg</em>, <em>baldur</em> or <em>torkeep</em>.
+These should work for the <em>reg</em>, <em>baldur</em> or <em>torkeep</em> components.
 
 
-List the **registry contents**  
+#### List the registry contents  
 ```
 curl -k https://src-data-repo.co.uk/reg/resource-caps
-```
-Shoud return a list of services that were defined in <em>./config/reg/reg-resource-caps.properties</em>
-```
+
+# Should return a list of services that were defined in <em>./config/reg/reg-resource-caps.properties
+
 #First, global services:
 ivo://skao.int/reg = https://src-data-repo.co.uk/reg/capabilities  
 ivo://skao.int/gms = https://ska-gms.stfc.ac.uk/gms/capabilities  
 ivo://skao.int/baldur = https://src-data-repo.co.uk/baldur/capabilities  
-
-...
 ```
 
-**Group permissions** as defined in <em>./config/baldur/baldur.properties</em>  
+
+#### Group permissions as defined in <em>./config/baldur/baldur.properties</em>  
 Extra info here - https://github.com/opencadc/storage-inventory/tree/main/baldur  
 
-curl https://<em>\<domain\></em>/baldur/perms?op=<em>grantType</em>\&ID=<em>identifier</em>
+>curl https://<em>\<domain\></em>/baldur/perms?op=<em>grantType</em>\&ID=<em>identifier</em>
 ```
-curl https://src-data-repo.co.uk/baldur/perms?op=read\&ID=caom:EMERLIN/
-```
+> curl https://src-data-repo.co.uk/baldur/perms?op=read\&ID=caom:EMERLIN/
 
-Should return (if found), details of the group
-```
+# Should return (if found), details of the group
+
 <?xml version="1.0" encoding="UTF-8"?>
 <grant type="ReadGrant">
   <assetID>caom:EMERLIN/</assetID>
@@ -109,84 +108,38 @@ Should return (if found), details of the group
 # assetID pattern needs to conform to caom:{collection}/{observationID}
 ```
 
- ⚠️ **Warning:** Be cautious of the pattern used to match, see <em>baldur.properties</em>' **EMERLIN.pattern** for the regular expression used to match the search term.
+ ⚠️ **Warning:** Be cautious of the pattern used to match, see [baldur.properties](config/baldur/baldur.properties)' <em>\<entry name\></em>.pattern for the regular expression used to match the search term.
 
-
+<br>
   
-**Database submission & retrieval** (torkeep service)  
+#### Database submission & retrieval (torkeep service)  
 https://src-data-repo.co.uk/torkeep/ in a browser for a detailed list of available APIs in a more readable fashion than calling <em>../torkeep/capabilities</em>
 
-A call to observations returns the available groups
+**Note** A bearer token is required for write and delete requests (shown as "SKA_TOKEN" below), see details.md for user account & bear token information. 
 ```
 > curl https://src-data-repo.co.uk/torkeep/observations
+
+# Should return the list of groups (collections) defined in baldur.properties
+
 test
 EMERLIN
+
+# Inject some data
+> curl -v --header "Content-Type: text/xml" --header "authorization: bearer $SKA_TOKEN" -T test_data.xml https://src-data-repo.co.uk/torkeep/observations/EMERLIN/TS8004_C_001_20190801_avg.ms
+
+# Check what's been stored for a named collection 
+> curl https://src-data-repo.co.uk/torkeep/observations/EMERLIN
+EMERLIN minimal-observation     2024-08-22T10:56:37.252 md5:f1a40291ce1dd85623a43d0c2b3b3758
+EMERLIN TS8004_C_001_20190801_avg.ms    2024-08-22T11:05:31.771 md5:260c09954bcb7494e0ca8255aa3ec743
+
+# Delete an entry
+> curl -X DELETE --header "authorization: bearer $SKA_TOKEN" -T test_data.xml https://src-data-repo.co.uk/torkeep/observations/EMERLIN/TS8004_C_001_20190801_avg.ms
+
 ```
 
-
-### Bearer Token for API calls using group permissions
-https://confluence.skatelescope.org/display/SRCSC/RED-10+Using+oidc-agent+to+authenticate+to+OpenCADC+services
-```
-curl -SsL --header "authorization: bearer $SKA_TOKEN"  https://src-data-repo.co.uk/torkeep/observations
-
-#### Franz Kirsten's Repo (for reference)
-https://gitlab.com/users/fkirsten/projects
+<br>
 
 
-### Certs and command line custom domain
-As we're currently using a custom domain name, we need to allow the browser to authenticate our own tickets.
-https://docs.vmware.com/en/VMware-Adapter-for-SAP-Landscape-Management/2.1.0/Installation-and-Administration-Guide-for-VLA-Administrators/GUID-0CED691F-79D3-43A4-B90D-CD97650C13A0.html
 
-Also, we can do this for command line calls such as curl requests
-
-
-User needs to be a member of a permissions group via https://ska-iam.stfc.ac.uk/login.
-Currently set to ivo://skao.int/gms?prototyping-groups/mini-src/platform-users but can be changed in the baldur.properties file.
-```
-cp rootCa and tls.crt to /usr/local/share/ca-certificates/
-
-sudo update-ca-certificates
-```
-
-The domain will need to be added to the "hosts" file
-
-Linux:
-```
->nano /etc/hosts
-```
-There will be an entry(entries) such as:
-```
-127.0.0.1 localhost
-```
-Add another:
-```
-127.0.0.1 src-data-repo.co.uk
-```
-Should hopefully work immediately.
-
-I’ve never done it on Mac so I just googled this https://www.nexcess.net/help/how-to-find-the-hosts-file-on-my-mac/  
-
-On Windows it’s <em>C:\Windows\System32\drivers\etc\hosts</em>
-
-
-## Usage
-```
-### Don't forget to get a new token (1 hour expiration)
-export SKA_TOKEN=$(oidc-token example-client)
-
-### Make sure observationID and collection are the same in the file as used in the curl request.
-
-### PUT a new entry
-curl -v --header "Content-Type: text/xml" --header "authorization: bearer $SKA_TOKEN" -T test_data.xml https://src-data-repo.co.uk/torkeep/observations/EMERLIN/TS8004_C_001_20190801_avg.ms
-
-### Read the observations under a named collection, read operations shouldn't need the SKA_TOKEN whilst set to anon = true in the baldur.properties. 
-curl -X GET --header 'Accept: text/tab-separated-values' 'https://src-data-repo.co.uk/torkeep/observations/EMERLIN'
-
-### Delete a named entry
-curl -X DELETE --header "authorization: bearer $SKA_TOKEN" https://src-data-repo.co.uk/torkeep/observations/EMERLIN/TS8004_C_001_20190801_avg.ms
-```
-
-### Notes
-<em>start-services.sh</em> has to be used to populate HOST_IP required by the docker-compose file, rather than calling <em>docker-compose up</em> directly. This value is used by the containers to allow access to the custom domain and will allow access via the reverse proxy. It's basically the IP address of the host machine from the perspective of the docker containers.
 
 

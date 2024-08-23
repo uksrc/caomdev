@@ -1,8 +1,14 @@
-Setting up test CAOM DB
+Deployment and details of using a test CAOM DB
+
+1. [Setting up test CAOM DB description](#description).
+2. [Creating a user account on the SKA Identity Management System](#iam-reg).
+3. [Requesting a bearer token for requests](#bearer).
+
+<a id="description"></a>Setting up test CAOM DB
 ========================
 
 
-Detailed instructions from Pat Dowler
+Detailed instructions from Pat Dowler at CADC.
 
 
 For setting up a CAOM database and storing metadata, there are a few components:
@@ -22,7 +28,6 @@ https://github.com/opencadc/reg/tree/master/reg images.opencadc.org/core/reg as 
 https://github.com/opencadc/storage-inventory/tree/master/baldur (images.opencadc.org/storage-inventory/baldur for permissions
 
 ll of these are running in what was the mini-srcnet demonstrator (operated by Coral, Franz Kirsten runs these) so you could probably just get some records added to them rather than bringing up your own, or run your own torkeep and make use of the central baldur and reg)
-And of course: a way to authenticate, which would be  "get token from SRCNet IAM" and use it to make the calls to torkeep. I'll have to check with Adrian Damian that the minimal token support has been added to the caom2 repository client.
 
 The current reg service is here:
 and the simple config-map style output is:
@@ -33,7 +38,7 @@ Franz Kirsten's test deployment:
 https://gitlab.com/fkirsten/opencadc-metadata
 
 
-# Using the test IAM
+### Using the test IAM
 
 In some of our other services we did implement a local testing option  where just authenticating was sufficient to allow writes; it turned out to be more dangerous than valuable so we didn't end up implementing it in other services.
 I believe for skaha you need to belong to an IAM group and configure skaha to allow that group... the usage for torkeep isn't much more complicated.
@@ -48,7 +53,7 @@ After that, when you request to write, torkeep will lookup and call baldur to se
 
 You could also run your own registry (reg) and permissions (baldur) services if you want a more standalone setup under your control; I run those for my dev environment to use when working on and testing service code locally.
 
-# Database 
+### Database 
 
 Q: When deploying the postgres dev container, I seem to get a postgres instance with a number of schemas defined and nothing else, is the expected behaviour (if the submission of observations creates the tables then OK). With a custom init-content-schemas.sh of:
 ```
@@ -155,7 +160,8 @@ where HAP:HAPIP is the hostname and IP addr of my haproxy container, PG:PGIP is 
 The DOCKER_NET and DOCKER_STATIC_IP is my custom network and the IP of the container: I get the latter by extracting it from the haproxy configuration so it's consistent with how haproxy will direct traffic to the container. haproxy does all the https (termination, client cert support, etc) and proxies calls to {container ip}:8080
 That might be overkill for your setup; I have about 5-10 PG instances and 5-20 service containers running at any one time so it was worth the effort for me... but maybe some ideas. Also, it's subtle but if you use self-signed cert (eg for a front end proxy) you can add the CA to all the containers (one or more files in config/cacerts) so that calls from one container to another will be able to verify the server cert. The container startup automatically adds any files in there to the local trust store so they are known to java/tomcat and other tools that use openssl, eg curl, which is installed in all containers so you can exec in there and manually check what's happening network-wise
 
-Q: CADC's harbor image repo query (for image versions etc)
+### CADC's harbor repo & image versions
+Q: CADC's harbor image repo query (for image versions etc), how do we get current versions?  
 A: yeah, we run a harbor registry at images.opencadc.org... unfortunately the UI requires login (don't know why) but the images are all anon readable.
 ```
 images.opencadc.org/core/reg
@@ -207,4 +213,100 @@ if [ -z "$SHA" ]; then
 elif [ "$SHA" == "--sha" ]; then
     curl -s $URL | jq '.[]| [.digest,.tags[].name] '
 fi
+```
+<br>  
+
+
+# <a id="iam-reg"></a>IAM - User account (and group permissions)
+Currently uses the SKA-IAM for user authentication - https://ska-iam.stfc.ac.uk/login  
+If you don't already have an account then select "Your organisation via EduGain" which will redirect you to your organisation's login page.  
+Once logged it, you will be able to request access to the group(s) defined in [baldur.properties](config/baldur/baldur.properties) for the collections being used, see <em>readWriteGroup</em> properties as shown [here](#settings).
+
+
+<br>
+
+# <a id="bearer"></a>Bearer Token requirement for requests that modify data.
+All requests that can modify data (see torkeep's PUT, POST & DELETE requests) require a token generated via your identity manager.  
+Current identify manager provider is defined in cadc-registry.properties <em>ivo://ivoa.net/sso#OpenID</em> property.
+```
+# Install oidc-agent
+sudo apt-get install oidc-agent
+
+# Add to shell environment (e.g. in $HOME/.bashrc)
+eval $(oidc-agent-service use) > /dev/null
+
+# Generate a test client (within the context of your user account)
+oidc-gen --iss=https://ska-iam.stfc.ac.uk --scope max --flow=device example-client
+
+# Gernate a token
+SKA_TOKEN=$(oidc-token example-client)
+
+# Verify it works
+curl -s -H "authorization: bearer $SKA_TOKEN" https://ska-iam.stfc.ac.uk/userinfo | jq
+```
+ ⚠️ **Warning:** tokens currently have a lifetime of 1 hour, once it's expired just request a new one.
+
+ Further reading on the IAM steps:
+https://confluence.skatelescope.org/display/SRCSC/RED-10+Using+oidc-agent+to+authenticate+to+OpenCADC+services
+
+
+```
+
+
+User needs to be a member of a permissions group via https://ska-iam.stfc.ac.uk/login.
+Currently set to ivo://skao.int/gms?prototyping-groups/mini-src/platform-users but can be changed in the baldur.properties file.
+```
+cp rootCa and tls.crt to /usr/local/share/ca-certificates/
+
+sudo update-ca-certificates
+```
+
+The domain will need to be added to the "hosts" file
+
+Linux:
+```
+>nano /etc/hosts
+```
+There will be an entry(entries) such as:
+```
+127.0.0.1 localhost
+```
+Add another:
+```
+127.0.0.1 src-data-repo.co.uk
+```
+Should hopefully work immediately.
+
+I’ve never done it on Mac so I just googled this https://www.nexcess.net/help/how-to-find-the-hosts-file-on-my-mac/  
+
+On Windows it’s <em>C:\Windows\System32\drivers\etc\hosts</em>
+
+
+## Usage
+```
+### Don't forget to get a new token (1 hour expiration)
+export SKA_TOKEN=$(oidc-token example-client)
+
+### Make sure observationID and collection are the same in the file as used in the curl request.
+
+```
+### PUT a new entry
+curl -v --header "Content-Type: text/xml" --header "authorization: bearer $SKA_TOKEN" -T test_data.xml https://src-data-repo.co.uk/torkeep/observations/EMERLIN/TS8004_C_001_20190801_avg.ms
+
+### Read the observations under a named collection, read operations shouldn't need the SKA_TOKEN whilst set to anon = true in the baldur.properties. 
+curl -X GET --header 'Accept: text/tab-separated-values' 'https://src-data-repo.co.uk/torkeep/observations/EMERLIN'
+
+### Delete a named entry
+curl -X DELETE --header "authorization: bearer $SKA_TOKEN" https://src-data-repo.co.uk/torkeep/observations/EMERLIN/TS8004_C_001_20190801_avg.ms
+```
+
+
+## <a id="settings"></a>Settings
+baldur.properties contains details of the groups permissions
+```
+org.opencadc.baldur.entry = EMERLIN
+EMERLIN.pattern = ^caom:EMERLIN/.*
+EMERLIN.anon = true
+EMERLIN.readOnlyGroup = ivo://skao.int/gms?prototyping-groups/mini-src/platform-users
+EMERLIN.readWriteGroup = ivo://skao.int/gms?prototyping-groups/mini-src/platform-users
 ```
