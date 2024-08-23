@@ -23,22 +23,19 @@ Several components that have been developed by OpenCADC are used in this deploym
 	- RootCA.crt in browser and command line. See [Ubuntu example](https://ubuntu.com/server/docs/install-a-root-ca-certificate-in-the-trust-store) and [Firefox example](https://docs.vmware.com/en/VMware-Adapter-for-SAP-Landscape-Management/2.1.0/Installation-and-Administration-Guide-for-VLA-Administrators/GUID-0CED691F-79D3-43A4-B90D-CD97650C13A0.html) for linux reference.
 	- Domain for this is https://src-data-repo.co.uk
 	- Can be changed but you'll have to create your own certificate & root authority, repeat 1 above, update the nginx.conf and replace the rootCA.crt in each service's config folder (so they can trust each other).
-<br>
-<br>
+
 2. Install Docker (& docker-compose)  
 
->	https://docs.docker.com/get-docker/    
->	https://docs.docker.com/compose/install/  
+	>	https://docs.docker.com/get-docker/    
+	>	https://docs.docker.com/compose/install/  
 
-<br>
 
 3. Clone repository  
->	https://github.com/uksrc/caomdev  
+	>	https://github.com/uksrc/caomdev  
 
-<br>
 4. Adjust settings
 	See [detail.md](detail.md) for information reagrding identity managment, permissions groups & bearer tokens for requests.
-<br>
+
 5. Start the postgres db (done separately)
 
 ```
@@ -46,7 +43,7 @@ docker-compose -f docker-compose-dbase.yml up -d
 ```
 
 6. Wait for a minute or so to allow the postgres db to start 
-<br>
+
 7. Start the main services
 
 ```
