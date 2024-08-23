@@ -26,12 +26,15 @@ Several components that have been developed by OpenCADC are used in this deploym
 <br>
 <br>
 2. Install Docker (& docker-compose)  
->	https://docs.docker.com/get-docker/  
->	https://docs.docker.com/compose/install/
+
+>	https://docs.docker.com/get-docker/    
+>	https://docs.docker.com/compose/install/  
+
 <br>
 
 3. Clone repository  
->	https://github.com/uksrc/caomdev
+>	https://github.com/uksrc/caomdev  
+
 <br>
 4. Adjust settings
 	See [detail.md](detail.md) for information reagrding identity managment, permissions groups & bearer tokens for requests.
