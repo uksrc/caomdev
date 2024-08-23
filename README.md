@@ -37,22 +37,22 @@ Several components that have been developed by OpenCADC are used in this deploym
 	See [detail.md](detail.md) for information reagrding identity managment, permissions groups & bearer tokens for requests.
 <br>
 4. Start the postgres db (done separately)  
-	```
-	docker-compose -f docker-compose-dbase.yml up -d
-	```
+```
+docker-compose -f docker-compose-dbase.yml up -d
+```
 
 5. Wait for a minute or so to allow the postgres db to start 
 <br>
 6. Start the main services  
-	```
-    docker-compose up -d
-	```
+```
+docker-compose up -d
+```
 
 7. Stopping the services  
-	```
-	docker-compose down
-	docker-compose -f docker-compose-dbase.yml down
-	```
+```
+docker-compose down
+docker-compose -f docker-compose-dbase.yml down
+```
 
 ## Testing
 
