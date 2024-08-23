@@ -1,46 +1,73 @@
+# Make sure pg15test database is already running
+# The database is required for the torkeep service but is a separate task for a couple of reasons:
+# 1. Able to restart services and allow the database to persist
+# 2. The way CADC's postgres-dev works means that docker-compose "dependsOn" won't work
 services:
   reg:
-    image: stephenlloyd/uksrc:reg
+    image: images.opencadc.org/core/reg:1.1.1
     container_name: reg
     user: "tomcat:tomcat"
     ports:
       - "8881:8080"
     volumes:
-      - ./config/reg:/config:ro
+      - ./config/reg:/config
+      - ./config/cacerts:/config/cacerts
+      - ./config/cadc-registry.properties:/config/cadc-registry.properties:ro
+    links:
+      - "nginx:src-data-repo.co.uk"
+    environment:
+      VIRTUAL_HOST: src-data-repo.co.uk
+      VIRTUAL_PATH: /reg/
     networks:
       - mynetwork
 
   baldur:
-    image: stephenlloyd/uksrc:baldur
+    image: images.opencadc.org/storage-inventory/baldur:0.3.7
     container_name: baldur
     user: "tomcat:tomcat"
     ports:
       - "8882:8080"
     volumes:
-      - ./config/baldur:/config:ro
-    networks:
-      - mynetwork
-
-  pg15test:
-    image: stephenlloyd/uksrc:cadc-postgresql-dev
-    container_name: pg15test
-    ports:
-      - "5432:5432"
-    volumes:
-      - ./config/postgres:/config:ro
-    restart: always
+      - ./config/baldur:/config
+      - ./config/cacerts:/config/cacerts
+      - ./config/cadc-registry.properties:/config/cadc-registry.properties:ro
+    links:
+      - "nginx:src-data-repo.co.uk"
+    environment:
+      VIRTUAL_HOST: src-data-repo.co.uk
+      VIRTUAL_PATH: /baldur/
     networks:
       - mynetwork
 
   torkeep:
     image: images.opencadc.org/caom2/torkeep:0.1.4
     container_name: torkeep
+    user: "tomcat:tomcat"
     ports:
       - "8883:8080"
     volumes:
       - ./config/torkeep:/config
+      - ./config/cacerts:/config/cacerts
       - ./config/cadc-registry.properties:/config/cadc-registry.properties:ro
-      - ./logs:/logs:ro
+    environment:
+      VIRTUAL_HOST: src-data-repo.co.uk
+      VIRTUAL_PATH: /torkeep/
+    restart: always
+    links:
+      - "nginx:src-data-repo.co.uk"
+    networks:
+      - mynetwork
+
+  nginx:
+    image: nginxproxy/nginx-proxy
+    container_name: nginx
+    volumes:
+      - ./ssl/server.crt:/etc/nginx/certs/src-data-repo.co.uk.crt:ro
+      - ./ssl/server.key:/etc/nginx/certs/src-data-repo.co.uk.key:ro
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    ports:
+      - "80:80"
+      - "443:443"
     networks:
       - mynetwork
 
